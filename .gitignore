@@ -1,0 +1,22 @@
+#Sample ESP32 gitignore file generated using ChatGPT
+# --- ESP32 / Embedded Essentials ---
+build/
+.pio/
+.pioenvs/
+bin/
+sdkconfig
+*.bin
+*.elf
+*.map
+*.o
+
+# --- IDE & System ---
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+
+# --- Local Configs (Private) ---
+*.local
+node_modules/
