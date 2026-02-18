@@ -1,0 +1,24 @@
+name: ESP32 Automated Review
+
+on: [pull_request]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Set up ESP32 Core
+        run: |
+          arduino-cli config init
+          arduino-cli config set board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+
+      - name: Verify Build
+        # --fqbn esp32:esp32:esp32 matches "ESP32 Dev Module"
+        run: arduino-cli compile --fqbn esp32:esp32:esp32 ./people-counting.ino
