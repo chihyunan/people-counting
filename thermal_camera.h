@@ -2,18 +2,15 @@
 #define THERMAL_CAMERA_H
 
 #include <Arduino.h>
+#include <Adafruit_AMG88xx.h>
+#include <U8g2lib.h>
 
-// Initialize the AMG8833 and the tracking algorithm
+// Export variables so main.ino can read the counts
+extern long enterCount;
+extern long exitCount;
+
 void setupThermalCamera();
-
-// The main verification function
-// Returns true if the algorithm currently tracks a human blob
-bool isHumanVerified();
-
-// Optional: Get the count from the internal tracking algorithm
-// to compare against your IR beam count
-int getThermalRegistryCount();
-
 void updateThermalLogic();
+void displayCounts(); // OLED update
 
 #endif

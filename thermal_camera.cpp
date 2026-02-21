@@ -1,37 +1,52 @@
 #include "thermal_camera.h"
 
-// 1. Wrap C includes so the C++ compiler doesn't freak out
+// Pull in the Panasonic Engine
 extern "C" {
     #include "src/grideye_api_lv1.h"
     #include "src/detect.h"
-    #include "src/feature_extraction.h"
 }
 
-// 2. Include the C++ tracking headers
-#include "src/tracking.hpp"
-#include "src/human_object.hpp"
+// Global Objects from Erick's code
+U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
+Adafruit_AMG88xx amg;
 
-// Global objects (from the GitHub logic)
-// Using 'static' keeps these hidden from the rest of the project
-static float pixel_data[64]; 
+float pixels[64];
+short raw_pixels_for_engine[64]; // The Engine wants 'short'
+long enterCount = 0;
+long exitCount = 0;
 
 void setupThermalCamera() {
-    Serial.println("Initializing Thermal Logic Wrapper...");
-    // Future: Add Wire.begin() and amg.begin() here
+    Wire.begin(21, 22);
+    u8g2.setI2CAddress(0x3C << 1);
+    u8g2.begin();
+
+    if (!amg.begin(0x69)) {
+        Serial.println("AMG8833 NOT FOUND");
+    }
 }
 
-    // This will eventually call the GitHub's frame processing
-    // For now, it's a heartbeat to prove the link works
 void updateThermalLogic() {
-    short mock_pixels[64];
-    for(int i=0; i<64; i++) mock_pixels[i] = 20 * 256; // 20 degrees C
+    amg.readPixels(pixels);
+
+    // --- BRIDGE TO ENGINE ---
+    // Convert floats to short (Multiplied by 256 per Panasonic specs)
+    for(int i=0; i<64; i++) {
+        raw_pixels_for_engine[i] = (short)(pixels[i] * 256);
+    }
+
+    // Call the Panasonic detection function from /src
+    // For MS1, we just ensure this call doesn't crash the ESP32
+    // vAMG_PUB_TMP_ConvTemperature64((unsigned char*)raw_pixels_for_engine, raw_pixels_for_engine);
     
-    // Manually call the Panasonic function you just fixed
-    vAMG_PUB_TMP_ConvTemperature64((unsigned char*)mock_pixels, mock_pixels);
-    Serial.println("Thermal algorithm processed mock frame.");
+    // --- ERICK'S FSM LOGIC (Simplified) ---
+    // You can keep Erick's hottest-pixel logic here as a fallback
+    // while we refine the multi-blob tracking in /src.
 }
 
-bool isHumanConfirmed() {
-    // This will eventually check the tracking list count
-    return true; 
+void displayCounts() {
+    u8g2.clearBuffer();
+    u8g2.setFont(u8g2_font_6x10_tf);
+    u8g2.setCursor(0, 15);
+    u8g2.printf("IN: %ld  OUT: %ld", enterCount, exitCount);
+    u8g2.sendBuffer();
 }
