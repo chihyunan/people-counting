@@ -4,8 +4,6 @@
 
 static int occupancy = 0;
 
-
-
 void setup() {
 
     Serial.begin(115200);

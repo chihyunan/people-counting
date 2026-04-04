@@ -1,10 +1,11 @@
 #include "ir_beam.h"
 
-const int PIN_A = 16; 
-const int PIN_B = 17;
+const int PIN_A =36; 
+const int PIN_B =39;
 const unsigned long NOISE_FLOOR = 5;    // 5ms: Human bodies aren't faster than this
 const unsigned long MAX_BLOCK = 3000;   // 3s: If blocked longer, ignore as obstacle
 const unsigned long WINDOW = 1000;      // 1s to finish the A->B sequence
+const unsigned long MIN_EVENT_GAP = 200; // Ignore counts that occur too soon after the last valid event
 
 volatile bool isBlockedA = false;
 volatile bool isBlockedB = false;
@@ -53,6 +54,7 @@ int getDirectionalCount() {
     unsigned long now = millis();
     static bool passInProgress = false;
     static int detectedDir = 0;
+    static unsigned long lastCountReturnAt = 0;
 
     // 1. SENSOR BREAKS (The Entry/Exit Start)
     if (isBlockedA && isBlockedB && !passInProgress) {
@@ -77,7 +79,13 @@ int getDirectionalCount() {
         int exitDir = (clearA < clearB) ? 1 : -1;
 
         if (exitDir == detectedDir) {
+            if (lastCountReturnAt != 0 && (now - lastCountReturnAt) < MIN_EVENT_GAP) {
+                detectedDir = 0;
+                return 0;
+            }
+
             int finalResult = detectedDir;
+            lastCountReturnAt = now;
             detectedDir = 0;
             return finalResult; // Valid pass confirmed, in future can use this to call GridEYE
         } else {
