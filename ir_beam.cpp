@@ -5,7 +5,7 @@ const int PIN_B =39;
 const unsigned long NOISE_FLOOR = 5;    // 5ms: Human bodies aren't faster than this
 const unsigned long MAX_BLOCK = 3000;   // 3s: If blocked longer, ignore as obstacle
 const unsigned long WINDOW = 1000;      // 1s to finish the A->B sequence
-const unsigned long MIN_EVENT_GAP = 200; // Ignore counts that occur too soon after the last valid event
+const unsigned long MIN_EVENT_GAP = 300; // Ignore counts that occur too soon after the last valid event
 
 volatile bool isBlockedA = false;
 volatile bool isBlockedB = false;
