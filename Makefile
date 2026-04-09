@@ -5,8 +5,7 @@ FQBN  := esp32:esp32:esp32
 PORT  ?= /dev/cu.usbserial-0001
 BAUD  := 115200
 SKETCH_DIR := .
-IR_LIB   := lib/ir_beam
-CLI_LIB  := --library $(IR_LIB)
+CLI_LIB  := --library lib/ir_beam --library lib/wifi
 
 .PHONY: help compile upload flash monitor
 
