@@ -1,0 +1,18 @@
+# Altium history & previews (large, auto-regenerated)
+History/
+__Previews/
+__Backup/
+ProjectLogs/
+Logs/
+
+# Altium lock files (created when a file is open)
+*.lck
+*.Lck
+
+# Altium auto-saved backups
+*.bak
+*.AutoSave
+
+# Altium status/annotation files
+*.~*
+*.DXPPrjLog

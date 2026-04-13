@@ -1,0 +1,11 @@
+Removed Pin From Net: NetName=3.3V Pin=2-0
+Removed Pin From Net: NetName=Net1_3 Pin=2-1
+Removed Pin From Net: NetName=Net1_4 Pin=2-2
+Removed Pin From Net: NetName=GND Pin=2-3
+Added Pin To Net: NetName=GND Pin=2-0
+Added Pin To Net: NetName=3.3V Pin=2-1
+Added Pin To Net: NetName=Net1_3 Pin=2-2
+Added Pin To Net: NetName=Net1_4 Pin=2-3
+Added Rule: Name=Schematic Supply Nets
+Added Rule: Name=Schematic Supply Nets_1
+Added Rule: Name=Schematic Supply Nets_2

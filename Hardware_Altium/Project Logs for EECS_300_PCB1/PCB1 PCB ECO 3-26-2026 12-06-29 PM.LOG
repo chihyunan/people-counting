@@ -1,0 +1,37 @@
+Change Component Comment : Designator=8 Old Comment=POWER BANK New Comment=BeamSensor_TX
+Change Component Designator: OldDesignator=3 NewDesignator=5
+Change Component Designator: OldDesignator=4 NewDesignator=6
+Change Component Designator: OldDesignator=5 NewDesignator=7
+Change Managed Component Library Link : Designator=8 Old VaultGUID=2FB1F9F6-DEBB-47C8-8BDC-2DF1597950F6 New VaultGUID=2FB1F9F6-DEBB-47C8-8BDC-2DF1597950F6 Old ItemGUID=ed5a9e8a-8b83-4bd1-99d6-c30c034b0a72 New ItemGUID=ed5a9e8a-8b83-4bd1-99d6-c30c034b0a72 Old RevisionGUID=975ed10a-e90f-4b79-8d16-99d5c8a3edeb New RevisionGUID=2139bac3-567e-428a-bd31-0d5b91b54ff6
+Added Component: Designator=3(Beam_TX)
+Added Component: Designator=4(Beam_TX)
+Added Pin To Net: NetName=Net3_19 Pin=3-0
+Added Pin To Net: NetName=GND Pin=3-1
+Added Pin To Net: NetName=Net3_19 Pin=4-0
+Added Pin To Net: NetName=GND Pin=4-1
+Added Pin To Net: NetName=GND Pin=8-0
+Added Pin To Net: NetName=Net3_19 Pin=8-1
+Change Net Name : Old Net Name=Net3_3 New Net Name=Net5_3
+Change Net Name : Old Net Name=Net3_4 New Net Name=Net5_4
+Change Net Name : Old Net Name=Net3_5 New Net Name=Net5_5
+Change Net Name : Old Net Name=Net3_6 New Net Name=Net5_6
+Change Net Name : Old Net Name=Net3_7 New Net Name=Net5_7
+Change Net Name : Old Net Name=Net3_8 New Net Name=Net5_8
+Change Net Name : Old Net Name=Net3_9 New Net Name=Net5_9
+Change Net Name : Old Net Name=Net3_10 New Net Name=Net5_10
+Change Net Name : Old Net Name=Net3_11 New Net Name=Net5_11
+Change Net Name : Old Net Name=Net3_12 New Net Name=Net5_12
+Change Net Name : Old Net Name=Net3_13 New Net Name=Net5_13
+Change Net Name : Old Net Name=Net3_14 New Net Name=Net5_14
+Change Net Name : Old Net Name=Net3_15 New Net Name=Net5_15
+Change Net Name : Old Net Name=Net3_19 New Net Name=Net3_0
+Change Net Name : Old Net Name=Net3_23 New Net Name=Net5_23
+Change Net Name : Old Net Name=Net3_24 New Net Name=Net5_24
+Change Net Name : Old Net Name=Net3_25 New Net Name=Net5_25
+Change Net Name : Old Net Name=Net3_26 New Net Name=Net5_26
+Change Net Name : Old Net Name=Net3_27 New Net Name=Net5_27
+Change Net Name : Old Net Name=Net3_28 New Net Name=Net5_28
+Change Net Name : Old Net Name=Net3_29 New Net Name=Net5_29
+Change Net Name : Old Net Name=Net3_30 New Net Name=Net5_30
+Change Net Name : Old Net Name=Net3_31 New Net Name=Net5_31
+Added Member To Class: ClassName=300_PCB1 Member=Component 1 WILL BE GRIDEYE

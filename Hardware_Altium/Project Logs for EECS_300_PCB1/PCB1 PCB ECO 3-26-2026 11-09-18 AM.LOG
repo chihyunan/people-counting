@@ -1,0 +1,165 @@
+Added Component: Designator=1(OLED)
+Added Component: Designator=2(OLED)
+Added Component: Designator=3(ESP32)
+Added Component: Designator=4(Left Breakout)
+Added Component: Designator=5(Breakout_Right)
+Added Component: Designator=6(Beam_TX)
+Added Component: Designator=7(Beam_TX)
+Added Component: Designator=8(Beam_TX)
+Added Component: Designator=9(Beam_RX)
+Added Component: Designator=10(Beam_RX)
+Added Component: Designator=R1(RESC0402(1005)_L)
+Add component (AddParameter): Name = "Case/Package"; Value = "0402"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Max Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Min Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Mounting Technology"; Value = "SMT"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Pins"; Value = "2"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Power"; Value = "63mW"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "RoHS Compliant"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Tolerance"; Value = "1%"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = "4.7k"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Voltage Rating"; Value = ""; VariantName = "[No Variations]"
+Added Component: Designator=R2(RESC0402(1005)_L)
+Add component (AddParameter): Name = "Case/Package"; Value = "0402"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Max Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Min Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Mounting Technology"; Value = "SMT"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Pins"; Value = "2"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Power"; Value = "63mW"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "RoHS Compliant"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Tolerance"; Value = "1%"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = "4.7k"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Voltage Rating"; Value = ""; VariantName = "[No Variations]"
+Added Component: Designator=R3(RESC0402(1005)_L)
+Add component (AddParameter): Name = "Case/Package"; Value = "0402"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Max Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Min Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Mounting Technology"; Value = "SMT"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Pins"; Value = "2"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Power"; Value = "63mW"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "RoHS Compliant"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Tolerance"; Value = "1%"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = "3k"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Voltage Rating"; Value = ""; VariantName = "[No Variations]"
+Added Component: Designator=R4(RESC0402(1005)_L)
+Add component (AddParameter): Name = "Case/Package"; Value = "0402"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Max Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Min Operating Temperature"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Mounting Technology"; Value = "SMT"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Pins"; Value = "2"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Power"; Value = "63mW"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "RoHS Compliant"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Tolerance"; Value = "1%"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = "3k"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Voltage Rating"; Value = ""; VariantName = "[No Variations]"
+Added Pin To Net: NetName=GND Pin=1-1
+Added Pin To Net: NetName=GND Pin=2-3
+Added Pin To Net: NetName=GND Pin=9-2
+Added Pin To Net: NetName=GND Pin=10-2
+Added Pin To Net: NetName=GND Pin=R1-1
+Added Pin To Net: NetName=GND Pin=R2-2
+Added Net: Name=GND
+Added Pin To Net: NetName=Net1_0 Pin=1-0
+Added Pin To Net: NetName=Net1_0 Pin=2-0
+Added Pin To Net: NetName=Net1_0 Pin=3-1
+Added Net: Name=Net1_0
+Added Pin To Net: NetName=Net1_2 Pin=1-2
+Added Pin To Net: NetName=Net1_2 Pin=2-1
+Added Pin To Net: NetName=Net1_2 Pin=3-36
+Added Net: Name=Net1_2
+Added Pin To Net: NetName=Net1_3 Pin=1-3
+Added Pin To Net: NetName=Net1_3 Pin=2-2
+Added Pin To Net: NetName=Net1_3 Pin=3-33
+Added Net: Name=Net1_3
+Added Pin To Net: NetName=Net3_3 Pin=3-3
+Added Pin To Net: NetName=Net3_3 Pin=4-3
+Added Net: Name=Net3_3
+Added Pin To Net: NetName=Net3_4 Pin=3-4
+Added Pin To Net: NetName=Net3_4 Pin=4-4
+Added Net: Name=Net3_4
+Added Pin To Net: NetName=Net3_5 Pin=3-5
+Added Pin To Net: NetName=Net3_5 Pin=4-5
+Added Net: Name=Net3_5
+Added Pin To Net: NetName=Net3_6 Pin=3-6
+Added Pin To Net: NetName=Net3_6 Pin=4-6
+Added Net: Name=Net3_6
+Added Pin To Net: NetName=Net3_7 Pin=3-7
+Added Pin To Net: NetName=Net3_7 Pin=4-7
+Added Net: Name=Net3_7
+Added Pin To Net: NetName=Net3_8 Pin=3-8
+Added Pin To Net: NetName=Net3_8 Pin=4-8
+Added Net: Name=Net3_8
+Added Pin To Net: NetName=Net3_9 Pin=3-9
+Added Pin To Net: NetName=Net3_9 Pin=4-9
+Added Net: Name=Net3_9
+Added Pin To Net: NetName=Net3_10 Pin=3-10
+Added Pin To Net: NetName=Net3_10 Pin=4-10
+Added Net: Name=Net3_10
+Added Pin To Net: NetName=Net3_11 Pin=3-11
+Added Pin To Net: NetName=Net3_11 Pin=4-11
+Added Net: Name=Net3_11
+Added Pin To Net: NetName=Net3_12 Pin=3-12
+Added Pin To Net: NetName=Net3_12 Pin=4-12
+Added Net: Name=Net3_12
+Added Pin To Net: NetName=Net3_13 Pin=3-13
+Added Pin To Net: NetName=Net3_13 Pin=4-13
+Added Net: Name=Net3_13
+Added Pin To Net: NetName=Net3_14 Pin=3-14
+Added Pin To Net: NetName=Net3_14 Pin=4-14
+Added Net: Name=Net3_14
+Added Pin To Net: NetName=Net3_15 Pin=3-15
+Added Pin To Net: NetName=Net3_15 Pin=4-15
+Added Net: Name=Net3_15
+Added Pin To Net: NetName=Net3_19 Pin=3-19
+Added Pin To Net: NetName=Net3_19 Pin=9-0
+Added Pin To Net: NetName=Net3_19 Pin=10-0
+Added Net: Name=Net3_19
+Added Pin To Net: NetName=Net3_23 Pin=3-23
+Added Pin To Net: NetName=Net3_23 Pin=R1-2
+Added Pin To Net: NetName=Net3_23 Pin=R3-2
+Added Net: Name=Net3_23
+Added Pin To Net: NetName=Net3_24 Pin=3-24
+Added Pin To Net: NetName=Net3_24 Pin=R2-1
+Added Pin To Net: NetName=Net3_24 Pin=R4-2
+Added Net: Name=Net3_24
+Added Pin To Net: NetName=Net3_25 Pin=3-25
+Added Pin To Net: NetName=Net3_25 Pin=5-25
+Added Net: Name=Net3_25
+Added Pin To Net: NetName=Net3_26 Pin=3-26
+Added Pin To Net: NetName=Net3_26 Pin=5-26
+Added Net: Name=Net3_26
+Added Pin To Net: NetName=Net3_27 Pin=3-27
+Added Pin To Net: NetName=Net3_27 Pin=5-27
+Added Net: Name=Net3_27
+Added Pin To Net: NetName=Net3_28 Pin=3-28
+Added Pin To Net: NetName=Net3_28 Pin=5-28
+Added Net: Name=Net3_28
+Added Pin To Net: NetName=Net3_29 Pin=3-29
+Added Pin To Net: NetName=Net3_29 Pin=5-29
+Added Net: Name=Net3_29
+Added Pin To Net: NetName=Net3_30 Pin=3-30
+Added Pin To Net: NetName=Net3_30 Pin=5-30
+Added Net: Name=Net3_30
+Added Pin To Net: NetName=Net3_31 Pin=3-31
+Added Pin To Net: NetName=Net3_31 Pin=5-31
+Added Net: Name=Net3_31
+Added Pin To Net: NetName=Net9_1 Pin=9-1
+Added Pin To Net: NetName=Net9_1 Pin=R4-1
+Added Net: Name=Net9_1
+Added Pin To Net: NetName=Net10_1 Pin=10-1
+Added Pin To Net: NetName=Net10_1 Pin=R3-1
+Added Net: Name=Net10_1
+Added Member To Class: ClassName=300_PCB1 Member=Component 1 WILL BE GRIDEYE
+Added Member To Class: ClassName=300_PCB1 Member=Component 2 OLED
+Added Member To Class: ClassName=300_PCB1 Member=Component 3 ESP32
+Added Member To Class: ClassName=300_PCB1 Member=Component 4 Breakout_Left
+Added Member To Class: ClassName=300_PCB1 Member=Component 5 Breakout_Right
+Added Member To Class: ClassName=300_PCB1 Member=Component 6 BeamSensor_TX
+Added Member To Class: ClassName=300_PCB1 Member=Component 7 BeamSensor_TX
+Added Member To Class: ClassName=300_PCB1 Member=Component 8 POWER BANK
+Added Member To Class: ClassName=300_PCB1 Member=Component 9 BeamSensor_RX
+Added Member To Class: ClassName=300_PCB1 Member=Component 10 BeamSensor_RX
+Added Member To Class: ClassName=300_PCB1 Member=Component R1 4D7KR2F
+Added Member To Class: ClassName=300_PCB1 Member=Component R2 4D7KR2F
+Added Member To Class: ClassName=300_PCB1 Member=Component R3 3KR2F
+Added Member To Class: ClassName=300_PCB1 Member=Component R4 3KR2F
