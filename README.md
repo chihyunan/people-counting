@@ -1,23 +1,32 @@
 # people-counting
 
-ESP32 + two IR beams (GPIO **36** and **39**). Tracks **in room**, cumulative **enter**, and **exit**.
+ESP32 + two IR break-beams (GPIO **36** / **39**). Tracks **in-room** occupancy with cumulative **enter** and **exit** counts.
 
-**WiFi:** AP **`esp32-people`** / **`people123`** (passed to `wifiBegin(...)` in `people-counting.ino`). Open **`http://192.168.4.1/`** or **`/json`** / **`/state`**.
+## Quick start
 
-**Serial:** **115200**, `make monitor`.
+```bash
+make flash                    # compile + flash (default port /dev/cu.usbserial-0001)
+make flash PORT=/dev/cu.OTHER # override port
+make monitor                  # serial @ 115200
+```
 
-**Build / flash:** `make flash` ([arduino-cli](https://arduino.github.io/arduino-cli/) + ESP32 core). Port: `make flash PORT=/dev/cu.YOURPORT`.
+## WiFi
 
-**Layout:** `people-counting.ino` + `lib/ir_beam/` (IR only) + `lib/wifi/` (SoftAP + HTTP only). Include **`wifi_ap.h`**. Source is **`softap_http.cpp`** (not `wifi.cpp` — macOS can treat it like the core `WiFi.cpp` and break the link).
+SoftAP **`esp32-people`** / password **`people123`** (set in `people-counting.ino`).
 
-## Test harnesses
+| Endpoint | Description |
+|----------|-------------|
+| `http://192.168.4.1/` | Live dashboard (auto-refreshing) |
+| `/json` | `{"inRoom":N,"entered":N,"exited":N}` |
+| `/state` | Plain-text one-liner |
 
-- **Beam jumper harness:** `make flash-beam-test PORT=/dev/cu.YOURPORT`
-  - Sketch: `test/beam-jumper/beam-jumper.ino`
-  - Wiring: GPIO25 -> GPIO36 (A), GPIO26 -> GPIO39 (B), common GND
-  - Purpose: exercise `lib/ir_beam` + counting + WiFi without optical break-beam hardware
-- **WiFi-only harness:** `make flash-wifi-test PORT=/dev/cu.YOURPORT`
-  - Sketch: `test/wifi-only/wifi-only.ino`
-  - Purpose: validate SoftAP + `/json` + `/state` with synthetic counters
+## Layout
 
-You can also override sketch directly: `make flash SKETCH_DIR=test/wifi-only PORT=/dev/cu.YOURPORT`.
+```
+people-counting.ino        — main sketch (setup + loop)
+lib/ir_beam/               — dual IR beam direction detection
+lib/wifi/                  — SoftAP + HTTP server (wifi_ap.h / softap_http.cpp)
+Makefile                   — compile / flash / monitor
+```
+
+Requires [arduino-cli](https://arduino.github.io/arduino-cli/) with the ESP32 core installed.

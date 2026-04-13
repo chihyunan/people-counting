@@ -9,7 +9,7 @@ void setup() {
 
     Serial.begin(115200);
     delay(500);
-    Serial.println("--- MS1: IR Beam Test Initiated ---");
+    Serial.println("--- People Counter ---");
     setupIRSensors();
     setIRDebug(true);
     BeamDiag bootDiag = runBeamBootDiagnostic(1500, 2);
@@ -23,7 +23,8 @@ void setup() {
     Serial.print(bootDiag.togglesB);
     Serial.print(" sampledMs=");
     Serial.println(bootDiag.sampledMs);
-    Serial.println("System Live. Use phone IR or physical break to test.");
+    wifiBegin("esp32-people", "people123", &occupancy, &totalEntered, &totalExited);
+    Serial.println("System ready.");
 }
 
 void loop() {
