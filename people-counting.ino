@@ -51,7 +51,12 @@ void loop() {
         // Optional: Heartbeat to prove code isn't frozen
         static unsigned long lastHeartbeat = 0;
         if (millis() - lastHeartbeat > 10000) {
-        Serial.println("System Status: Monitoring...");
+        Serial.print(F("System Status: Monitoring... inRoom="));
+        Serial.print(occupancy);
+        Serial.print(F(" entered="));
+        Serial.print(totalEntered);
+        Serial.print(F(" exited="));
+        Serial.println(totalExited);
         BeamDiag liveDiag = getBeamHealthLive();
         Serial.print("[ir] live health A=");
         Serial.print(beamHealthToString(liveDiag.a));
