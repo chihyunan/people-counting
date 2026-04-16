@@ -29,6 +29,15 @@ constexpr unsigned long SAMPLE_INTERVAL_MS = 80;
 constexpr unsigned long TRACK_TIMEOUT_MS = 1500;
 constexpr size_t EVENT_BUFFER_SIZE = 12;
 
+constexpr float BLOB_DELTA_C = 2.0f;
+constexpr uint8_t BLOB_MIN_SIZE = 2;
+
+struct BlobResult {
+  uint8_t count;
+  float baseline;
+  float threshold;
+};
+
 static SignedEvent eventBuffer[EVENT_BUFFER_SIZE] = {};
 static size_t nextEventIndex = 0;
 
@@ -163,6 +172,44 @@ inline int consumeWindowDelta(unsigned long triggerTime,
   }
 
   return total;
+}
+
+inline BlobResult countBlobs(float deltaC = BLOB_DELTA_C,
+                             uint8_t minSize = BLOB_MIN_SIZE) {
+  float sum = 0;
+  for (int i = 0; i < 64; i++) sum += pixels[i];
+  float baseline = sum / 64.0f;
+  float thresh = baseline + deltaC;
+
+  uint8_t labels[64] = {};
+  uint8_t blobCount = 0;
+  uint8_t stack[64];
+
+  for (uint8_t seed = 0; seed < 64; seed++) {
+    if (labels[seed] || pixels[seed] < thresh) continue;
+    blobCount++;
+    uint8_t sz = 0;
+    uint8_t top = 0;
+    stack[top++] = seed;
+    while (top > 0) {
+      uint8_t idx = stack[--top];
+      if (labels[idx]) continue;
+      labels[idx] = blobCount;
+      sz++;
+      uint8_t r = idx / 8, c = idx % 8;
+      if (r > 0 && !labels[idx - 8] && pixels[idx - 8] >= thresh)
+        stack[top++] = idx - 8;
+      if (r < 7 && !labels[idx + 8] && pixels[idx + 8] >= thresh)
+        stack[top++] = idx + 8;
+      if (c > 0 && !labels[idx - 1] && pixels[idx - 1] >= thresh)
+        stack[top++] = idx - 1;
+      if (c < 7 && !labels[idx + 1] && pixels[idx + 1] >= thresh)
+        stack[top++] = idx + 1;
+    }
+    if (sz < minSize) blobCount--;
+  }
+
+  return {blobCount, baseline, thresh};
 }
 
 }  // namespace Eyegrid
