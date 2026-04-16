@@ -19,6 +19,7 @@ void setup() {
   }
 
   Eyegrid::resetTracker();
+  Eyegrid::calibrate();
   Serial.printf("Grid-EYE ready. Blob tuning: deltaC=%.1f minSize=%u\n",
                 Eyegrid::BLOB_DELTA_C, Eyegrid::BLOB_MIN_SIZE);
 }
@@ -26,18 +27,18 @@ void setup() {
 void loop() {
   unsigned long now = millis();
 
-  Eyegrid::update(now);
-  Eyegrid::BlobResult blobs = Eyegrid::countBlobs();
+  if (!Eyegrid::update(now)) return;
 
-  if (blobs.count != lastBlobCount) {
-    Serial.printf("Blobs=%u  baseline=%.1f  thresh=%.1f\n",
-                  blobs.count, blobs.baseline, blobs.threshold);
-    lastBlobCount = blobs.count;
+  uint8_t blobs = Eyegrid::countBlobs();
+  bool changed = blobs != lastBlobCount;
+  bool heartbeat = now - lastHeartbeat >= HEARTBEAT_MS;
+
+  if (changed || heartbeat) {
+    Serial.printf("Blobs=%u\n", blobs);
+    lastBlobCount = blobs;
   }
 
-  if (now - lastHeartbeat >= HEARTBEAT_MS) {
-    Serial.printf("Blobs=%u  baseline=%.1f  thresh=%.1f\n",
-                  blobs.count, blobs.baseline, blobs.threshold);
+  if (heartbeat) {
     Serial.println("8x8 (C):");
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {

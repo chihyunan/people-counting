@@ -10,36 +10,27 @@ namespace Eyegrid {
 static Adafruit_AMG88xx amg;
 static float pixels[64];
 
-struct SignedEvent {
-  int delta;
-  unsigned long timestamp;
-  bool consumed;
-};
-
-enum class Zone { None, Out, Mid, In };
+enum class Zone { Out, Mid, In };
 
 static int stage = 0;  // 0 idle, 1 saw OUT, 2 OUT->MID, 3 saw IN, 4 IN->MID
 static unsigned long lastPollMs = 0;
 static unsigned long lastTrackedMs = 0;
 
-constexpr float HEAT_THRESHOLD_C = 28.0f;
+constexpr float HEAT_THRESHOLD_C = 28.0f;  // fallback if uncalibrated
 constexpr float OUT_LINE = 2.5f;  // y < this = OUT
 constexpr float IN_LINE  = 4.5f;  // y > this = IN
 constexpr unsigned long SAMPLE_INTERVAL_MS = 80;
 constexpr unsigned long TRACK_TIMEOUT_MS = 1500;
-constexpr size_t EVENT_BUFFER_SIZE = 12;
 
 constexpr float BLOB_DELTA_C = 2.0f;
 constexpr uint8_t BLOB_MIN_SIZE = 2;
+constexpr float AMBIENT_BAND_PCT = 0.10f;
+constexpr unsigned long CALIBRATION_MS = 10000;
 
-struct BlobResult {
-  uint8_t count;
-  float baseline;
-  float threshold;
-};
 
-static SignedEvent eventBuffer[EVENT_BUFFER_SIZE] = {};
-static size_t nextEventIndex = 0;
+static bool calibrated = false;
+static float ambientMean = 0.0f;
+static float ambientUpper = 0.0f;  // mean * (1 + BAND%)
 
 inline Zone zoneOf(float y) {
   if (y < OUT_LINE) return Zone::Out;
@@ -57,9 +48,26 @@ inline void resetTracker() {
   lastTrackedMs = 0;
 }
 
-inline void recordEvent(int delta, unsigned long timestamp) {
-  eventBuffer[nextEventIndex] = SignedEvent{delta, timestamp, false};
-  nextEventIndex = (nextEventIndex + 1) % EVENT_BUFFER_SIZE;
+inline void calibrate(unsigned long durationMs = CALIBRATION_MS) {
+  double accumulator = 0.0;
+  unsigned long frames = 0;
+  unsigned long start = millis();
+
+  Serial.printf("Calibrating ambient for %lu ms — keep doorway clear...\n", durationMs);
+
+  while (millis() - start < durationMs) {
+    amg.readPixels(pixels);
+    for (int i = 0; i < 64; i++) accumulator += pixels[i];
+    frames++;
+    delay(SAMPLE_INTERVAL_MS);
+  }
+
+  ambientMean  = static_cast<float>(accumulator / (frames * 64));
+  ambientUpper = ambientMean * (1.0f + AMBIENT_BAND_PCT);
+  calibrated   = true;
+
+  Serial.printf("Calibration done: %lu frames, ambient=%.1f C, gate=%.1f\n",
+                frames, ambientMean, ambientUpper);
 }
 
 inline int processZone(Zone z, float maxT, int y, unsigned long now) {
@@ -134,7 +142,8 @@ inline bool update(unsigned long now = millis()) {
   }
   int y = maxI / 8;
 
-  if (maxT < HEAT_THRESHOLD_C) {
+  float gate = calibrated ? ambientUpper : HEAT_THRESHOLD_C;
+  if (maxT < gate) {
     if (stage != 0 && lastTrackedMs != 0 && now - lastTrackedMs > TRACK_TIMEOUT_MS) {
       stage = 0;
     }
@@ -144,42 +153,13 @@ inline bool update(unsigned long now = millis()) {
   lastTrackedMs = now;
   Zone z = zoneOf(static_cast<float>(y));
   int delta = processZone(z, maxT, y, now);
-  if (delta != 0) {
-    recordEvent(delta, now);
-    return true;
-  }
-
-  return false;
+  return delta != 0;
 }
 
-inline int consumeWindowDelta(unsigned long triggerTime,
-                              unsigned long lookbackMs,
-                              unsigned long lookaheadMs) {
-  unsigned long windowStart = (triggerTime > lookbackMs) ? (triggerTime - lookbackMs) : 0;
-  unsigned long windowEnd = triggerTime + lookaheadMs;
-  int total = 0;
-
-  for (size_t i = 0; i < EVENT_BUFFER_SIZE; ++i) {
-    SignedEvent &event = eventBuffer[i];
-    if (event.delta == 0 || event.consumed) {
-      continue;
-    }
-
-    if (event.timestamp >= windowStart && event.timestamp <= windowEnd) {
-      total += event.delta;
-      event.consumed = true;
-    }
-  }
-
-  return total;
-}
-
-inline BlobResult countBlobs(float deltaC = BLOB_DELTA_C,
-                             uint8_t minSize = BLOB_MIN_SIZE) {
-  float sum = 0;
-  for (int i = 0; i < 64; i++) sum += pixels[i];
-  float baseline = sum / 64.0f;
-  float thresh = baseline + deltaC;
+inline uint8_t countBlobs(float deltaC = BLOB_DELTA_C,
+                          uint8_t minSize = BLOB_MIN_SIZE) {
+  float thresh = calibrated ? ambientUpper
+                            : ([&]{ float s=0; for(int i=0;i<64;i++) s+=pixels[i]; return s/64.0f; }() + deltaC);
 
   uint8_t labels[64] = {};
   uint8_t blobCount = 0;
@@ -209,7 +189,7 @@ inline BlobResult countBlobs(float deltaC = BLOB_DELTA_C,
     if (sz < minSize) blobCount--;
   }
 
-  return {blobCount, baseline, thresh};
+  return blobCount;
 }
 
 }  // namespace Eyegrid
