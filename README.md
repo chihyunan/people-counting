@@ -1,6 +1,6 @@
 # people-counting
 
-ESP32 + two IR break-beams (GPIO **36** / **39**). Tracks **in-room** occupancy with cumulative **enter** and **exit** counts.
+ESP32 + two IR break-beams (GPIO **2** / **15**). Tracks **in-room** occupancy with cumulative **enter** and **exit** counts.
 
 ## Quick start
 
