@@ -38,8 +38,8 @@ Notes:
 
 ```
 people-counting.ino        — main sketch (setup + loop)
-lib/ir_beam/               — dual IR beam direction detection
-lib/wifi/                  — SoftAP + HTTP server (wifi_ap.h / softap_http.cpp)
+src/ir_beam/               — dual IR beam direction detection
+src/wifi/                  — SoftAP + HTTP server (wifi_ap.h / softap_http.cpp)
 Makefile                   — compile / flash / monitor
 ```
 

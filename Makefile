@@ -3,7 +3,6 @@
 FQBN  := esp32:esp32:esp32
 PORT  ?= /dev/cu.usbserial-0001
 BAUD  := 115200
-LIBS  := --library lib/ir_beam --library lib/wifi
 
 .PHONY: help compile flash monitor
 
@@ -16,10 +15,10 @@ help:
 	@echo "Override port:  make flash PORT=/dev/cu.OTHER"
 
 compile:
-	arduino-cli compile --fqbn $(FQBN) $(LIBS) .
+	arduino-cli compile --fqbn $(FQBN) .
 
 flash:
-	arduino-cli compile --upload -p $(PORT) --fqbn $(FQBN) $(LIBS) .
+	arduino-cli compile --upload -p $(PORT) --fqbn $(FQBN) .
 
 monitor:
 	arduino-cli monitor -p $(PORT) -c baudrate=$(BAUD)

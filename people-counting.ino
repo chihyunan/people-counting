@@ -1,5 +1,5 @@
-#include <ir_beam.h>
-#include <wifi_ap.h>
+#include "src/ir_beam/ir_beam.h"
+#include "src/wifi/wifi_ap.h"
 
 #define LOG wifiLog()
 
