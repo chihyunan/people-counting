@@ -1,17 +1,32 @@
-FQBN  = esp32:esp32:esp32
-PORT ?= /dev/cu.usbserial-0001
+FQBN      ?= esp32:esp32:esp32
+PORT      ?= /dev/cu.usbserial-0001
+SKETCH    ?= .
+BUILD_DIR ?= .arduino/build
+
+CLI = arduino-cli
 
 compile:
-	arduino-cli compile --fqbn $(FQBN) .
+	mkdir -p "$(BUILD_DIR)"
+	$(CLI) compile \
+		--fqbn $(FQBN) \
+		--build-path "$(BUILD_DIR)" \
+		$(SKETCH)
 
 upload: compile
-	arduino-cli upload -p $(PORT) --fqbn $(FQBN) .
+	$(CLI) upload \
+		-p $(PORT) \
+		--fqbn $(FQBN) \
+		--input-dir "$(BUILD_DIR)" \
+		$(SKETCH)
 
 flash: upload
 
 monitor:
-	arduino-cli monitor -p $(PORT) -c baudrate=115200
+	$(CLI) monitor -p $(PORT) -c baudrate=115200
 
 run: upload monitor
 
-.PHONY: compile upload flash monitor run
+clean:
+	rm -rf .arduino
+
+.PHONY: compile upload flash monitor run clean
