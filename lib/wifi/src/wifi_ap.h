@@ -8,5 +8,6 @@ void wifiBegin(const char *apSsid, const char *apPass, int *inRoom, unsigned lon
                unsigned long *exited);
 
 void wifiLoop();
+Print &wifiLog();
 
 #endif

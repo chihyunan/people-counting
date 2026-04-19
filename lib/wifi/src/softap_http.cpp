@@ -3,10 +3,35 @@
 #include "wifi_ap.h"
 
 static WebServer server(80);
+static WiFiServer logServer(23);
+static WiFiClient logClient;
 
 static int *g_inRoom = nullptr;
 static unsigned long *g_entered = nullptr;
 static unsigned long *g_exited = nullptr;
+
+class WifiMirrorPrint : public Print {
+public:
+  size_t write(uint8_t b) override {
+    Serial.write(b);
+    if (logClient && logClient.connected()) {
+      logClient.write(&b, 1);
+    }
+    return 1;
+  }
+
+  size_t write(const uint8_t *buffer, size_t size) override {
+    Serial.write(buffer, size);
+    if (logClient && logClient.connected()) {
+      logClient.write(buffer, size);
+    }
+    return size;
+  }
+};
+
+static WifiMirrorPrint g_log;
+
+Print &wifiLog() { return g_log; }
 
 static void handleIndex() {
   server.send(200, "text/html",
@@ -62,6 +87,25 @@ static void handleState() {
   server.send(200, "text/plain", line);
 }
 
+static void handleLogClient() {
+  if (logServer.hasClient()) {
+    WiFiClient incoming = logServer.available();
+    if (logClient && logClient.connected()) {
+      incoming.println("[wifi-log] busy");
+      incoming.stop();
+    } else {
+      logClient.stop();
+      logClient = incoming;
+      logClient.setNoDelay(true);
+      logClient.println("[wifi-log] connected");
+    }
+  }
+
+  if (logClient && !logClient.connected()) {
+    logClient.stop();
+  }
+}
+
 void wifiBegin(const char *apSsid, const char *apPass, int *inRoom, unsigned long *entered,
                unsigned long *exited) {
   g_inRoom = inRoom;
@@ -80,6 +124,12 @@ void wifiBegin(const char *apSsid, const char *apPass, int *inRoom, unsigned lon
   server.on("/json", HTTP_GET, handleJson);
   server.on("/state", HTTP_GET, handleState);
   server.begin();
+
+  logServer.begin();
+  logServer.setNoDelay(true);
 }
 
-void wifiLoop() { server.handleClient(); }
+void wifiLoop() {
+  handleLogClient();
+  server.handleClient();
+}

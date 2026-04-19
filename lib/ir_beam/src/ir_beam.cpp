@@ -1,4 +1,7 @@
 #include "ir_beam.h"
+#include <wifi_ap.h>
+
+#define LOG wifiLog()
 
 const int PIN_A = 2;
 const int PIN_B = 15;
@@ -113,20 +116,20 @@ static void flushDebugEdges() {
   interrupts();
 
   if (flags & EDGE_A_BREAK) {
-    Serial.print(F("[ir] A break t="));
-    Serial.println(localTimeA);
+    LOG.print(F("[ir] A break t="));
+    LOG.println(localTimeA);
   }
   if (flags & EDGE_A_CLEAR) {
-    Serial.print(F("[ir] A clear t="));
-    Serial.println(localClearA);
+    LOG.print(F("[ir] A clear t="));
+    LOG.println(localClearA);
   }
   if (flags & EDGE_B_BREAK) {
-    Serial.print(F("[ir] B break t="));
-    Serial.println(localTimeB);
+    LOG.print(F("[ir] B break t="));
+    LOG.println(localTimeB);
   }
   if (flags & EDGE_B_CLEAR) {
-    Serial.print(F("[ir] B clear t="));
-    Serial.println(localClearB);
+    LOG.print(F("[ir] B clear t="));
+    LOG.println(localClearB);
   }
 }
 
@@ -151,9 +154,9 @@ void IRAM_ATTR handleSensorB() {
 void setIRDebug(bool enabled) {
   debugEnabled = enabled;
   if (debugEnabled) {
-    Serial.println(F("[ir] debug enabled"));
+    LOG.println(F("[ir] debug enabled"));
   } else {
-    Serial.println(F("[ir] debug disabled"));
+    LOG.println(F("[ir] debug disabled"));
   }
 }
 

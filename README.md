@@ -20,6 +20,20 @@ SoftAP **`esp32-people`** / password **`people123`** (set in `people-counting.in
 | `/json` | `{"inRoom":N,"entered":N,"exited":N}` |
 | `/state` | Plain-text one-liner |
 
+### Wi-Fi log stream
+
+Serial logs are mirrored to a TCP stream on port `23`.
+
+```bash
+nc 192.168.4.1 23
+# or
+telnet 192.168.4.1 23
+```
+
+Notes:
+- USB serial monitor remains available at `115200`.
+- Only one Wi-Fi log client is accepted at a time; additional clients are rejected as busy.
+
 ## Layout
 
 ```
