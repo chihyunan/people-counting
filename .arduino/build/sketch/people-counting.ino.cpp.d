@@ -167,16 +167,16 @@
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/freertos_stats.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/io_pin_remap.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/Arduino.h \
- /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid_old.h \
+ /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid.h \
+ /Users/richardding/Documents/Arduino/libraries/Adafruit_AMG88xx_Library/Adafruit_AMG88xx.h \
+ /Users/richardding/Documents/Arduino/libraries/Adafruit_BusIO/Adafruit_I2CDevice.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/libraries/Wire/src/Wire.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/esp32-hal.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/esp32-hal-log.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/HardwareI2C.h \
- /Users/richardding/Documents/Arduino/libraries/Adafruit_AMG88xx_Library/Adafruit_AMG88xx.h \
- /Users/richardding/Documents/Arduino/libraries/Adafruit_BusIO/Adafruit_I2CDevice.h \
  /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid_helper.h \
- /Users/richardding/Documents/GitHub/people-counting/src/eyegrid/scanner \
- /Users/richardding/Documents/GitHub/people-counting/src/eyegrid/eyegrid_helper.h \
+ /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/scanner.h \
+ /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid_helper.h \
  /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/oled/oled_display.h \
  /Users/richardding/Documents/Arduino/libraries/U8g2/src/U8g2lib.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/Print.h \
