@@ -3,8 +3,8 @@
 
 #define LOG wifiLog()
 
-const int PIN_A = 2;
-const int PIN_B = 15;
+const int PIN_A = 36;
+const int PIN_B = 39;
 const unsigned long NOISE_FLOOR = 5;     // ms: ignore near-simultaneous breaks (EMI / noise)
 const unsigned long MAX_BLOCK = 3000;    // ms: max time between A and B break; also armed timeout
 const unsigned long MIN_EVENT_GAP = 300; // ms: minimum time between accepted counts
