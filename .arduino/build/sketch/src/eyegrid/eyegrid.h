@@ -25,7 +25,7 @@ struct CalibrationResult {
   uint16_t frames;
 };
 
-inline bool start(int sda = 21, int scl = 22) {
+inline bool start(int sda = 36, int scl = 39) {
   Wire.begin(sda, scl);
   return amg.begin(0x69);
 }
