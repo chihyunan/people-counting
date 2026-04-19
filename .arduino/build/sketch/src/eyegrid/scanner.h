@@ -3,56 +3,140 @@
 #define EYEGRID_SCANNER_H
 
 #include <stdint.h>
-#include "eyegrid_helper.h"
 
 namespace Scanner {
 
+static constexpr uint8_t kMaxScanBlobs = 8;
+
 struct ScanResult {
-  int entry;
-  int exit;
   uint8_t hotCells;
   uint8_t blobCount;
-  bool touchesTop;
-  bool touchesBottom;
+  float frameMaxC;
+  float peakFloorC;
+  /** Bit set for each orth-filtered peak cell (for grid *). */
+  uint64_t peakMask;
+  /** Per 8-connected blob of peaks: bitmask and centroid in grid cells. */
+  float blobCx[kMaxScanBlobs];
+  float blobCy[kMaxScanBlobs];
+  uint64_t blobMask[kMaxScanBlobs];
 };
 
-static bool sawTop = false;
-static bool sawBottom = false;
-static int8_t firstEdge = 0; // 0 none, +1 top, -1 bottom
-static uint8_t missingFrames = 0;
-static const uint8_t LOST_TRACK_RESET_FRAMES = 3;
+/** Orthogonal local maximum: center >= each existing N/E/S/W neighbor (no diagonals). */
+inline bool orthLocalPeak4(const float pixels[64], uint8_t x, uint8_t y) {
+  const float c = pixels[(static_cast<uint16_t>(y) << 3) + x];
+  if (y > 0 && c < pixels[(static_cast<uint16_t>(y - 1u) << 3) + x]) {
+    return false;
+  }
+  if (y < 7 && c < pixels[(static_cast<uint16_t>(y + 1u) << 3) + x]) {
+    return false;
+  }
+  if (x > 0 && c < pixels[(static_cast<uint16_t>(y) << 3) + (x - 1u)]) {
+    return false;
+  }
+  if (x < 7 && c < pixels[(static_cast<uint16_t>(y) << 3) + (x + 1u)]) {
+    return false;
+  }
+  return true;
+}
 
-inline ScanResult scan(const EyegridHelper::BinaryGrid8x8 &grid) {
-  ScanResult out = {0, 0, 0, 0, false, false};
-  bool top = false;
-  bool bottom = false;
+/** Minimum temperature over existing N/E/S/W neighbors. */
+inline float orthNeighborMin4(const float pixels[64], uint8_t x, uint8_t y) {
+  float nMin = 9999.0f;
+  if (y > 0) {
+    const float v = pixels[(static_cast<uint16_t>(y - 1u) << 3) + x];
+    if (v < nMin) {
+      nMin = v;
+    }
+  }
+  if (y < 7) {
+    const float v = pixels[(static_cast<uint16_t>(y + 1u) << 3) + x];
+    if (v < nMin) {
+      nMin = v;
+    }
+  }
+  if (x > 0) {
+    const float v = pixels[(static_cast<uint16_t>(y) << 3) + (x - 1u)];
+    if (v < nMin) {
+      nMin = v;
+    }
+  }
+  if (x < 7) {
+    const float v = pixels[(static_cast<uint16_t>(y) << 3) + (x + 1u)];
+    if (v < nMin) {
+      nMin = v;
+    }
+  }
+  return nMin;
+}
 
-  bool visited[8][8] = {};
-  const int8_t dirs[8][2] = {
-      {-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
-      {0, 1},   {1, -1}, {1, 0},  {1, 1},
-  };
-  int qx[64];
-  int qy[64];
+/**
+ * hotCells: T >= thresholdC (calibration warm mask).
+ * Peaks only inside high band: T >= highBandMinC (e.g. threshold * 1.05).
+ * Peak rules: T >= peakFloor, orth local max, (T - min orth N) >= minProminenceC,
+ *             peakFloor = max(thresholdC, frameMax - headBandC).
+ * blobCount: 8-connected components among peak cells (includes diagonals so
+ *             two * cells touching only on a corner count as one blob).
+ * peakMask: bits set for each peak cell.
+ * No qualifying local peak → blobCount 0 (no synthetic blob for flat hot regions).
+ */
+inline ScanResult scan(const float pixels[64], float thresholdC, float headBandC,
+                       float minProminenceC, float highBandMinC) {
+  ScanResult out{};
+  out.frameMaxC = pixels[0];
+
+  for (uint8_t i = 1; i < 64; ++i) {
+    if (pixels[i] > out.frameMaxC) {
+      out.frameMaxC = pixels[i];
+    }
+  }
+
+  out.peakFloorC = out.frameMaxC - headBandC;
+  if (out.peakFloorC < thresholdC) {
+    out.peakFloorC = thresholdC;
+  }
+
+  bool isPeak[8][8] = {};
 
   for (uint8_t y = 0; y < 8; ++y) {
     for (uint8_t x = 0; x < 8; ++x) {
-      if (grid.cell[y][x] == 0) {
+      const float t = pixels[(static_cast<uint16_t>(y) << 3) + x];
+      if (t >= thresholdC) {
+        out.hotCells++;
+      }
+      if (t < highBandMinC) {
         continue;
       }
-
-      out.hotCells++;
-      if (y == 0) {
-        top = true;
-      } else if (y == 7) {
-        bottom = true;
-      }
-
-      if (visited[y][x]) {
+      if (t < out.peakFloorC) {
         continue;
       }
+      if (!orthLocalPeak4(pixels, x, y)) {
+        continue;
+      }
+      const float nMin = orthNeighborMin4(pixels, x, y);
+      if ((t - nMin) < minProminenceC) {
+        continue;
+      }
+      isPeak[y][x] = true;
+    }
+  }
 
-      out.blobCount++;
+  const int8_t d8[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1},
+                           {1, -1},  {1, 0},  {1, 1}};
+  bool visited[8][8] = {};
+  int qx[64];
+  int qy[64];
+
+  uint8_t nb = 0;
+  for (uint8_t y = 0; y < 8; ++y) {
+    for (uint8_t x = 0; x < 8; ++x) {
+      if (!isPeak[y][x] || visited[y][x]) {
+        continue;
+      }
+      uint32_t sumX = 0;
+      uint32_t sumY = 0;
+      uint32_t cnt = 0;
+      uint64_t compMask = 0ULL;
+
       int head = 0;
       int tail = 0;
       qx[tail] = x;
@@ -61,17 +145,22 @@ inline ScanResult scan(const EyegridHelper::BinaryGrid8x8 &grid) {
       visited[y][x] = true;
 
       while (head < tail) {
-        int cx = qx[head];
-        int cy = qy[head];
+        const int cx = qx[head];
+        const int cy = qy[head];
         head++;
+        sumX += static_cast<uint32_t>(cx);
+        sumY += static_cast<uint32_t>(cy);
+        cnt++;
+        compMask |= (1ULL << static_cast<uint8_t>((static_cast<uint8_t>(cy) << 3) |
+                                                   static_cast<uint8_t>(cx)));
 
         for (uint8_t i = 0; i < 8; ++i) {
-          int nx = cx + dirs[i][0];
-          int ny = cy + dirs[i][1];
+          const int nx = cx + d8[i][0];
+          const int ny = cy + d8[i][1];
           if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8) {
             continue;
           }
-          if (visited[ny][nx] || grid.cell[ny][nx] == 0) {
+          if (visited[ny][nx] || !isPeak[ny][nx]) {
             continue;
           }
           visited[ny][nx] = true;
@@ -80,45 +169,30 @@ inline ScanResult scan(const EyegridHelper::BinaryGrid8x8 &grid) {
           tail++;
         }
       }
+
+      if (nb < kMaxScanBlobs) {
+        const float inv = 1.0f / static_cast<float>(cnt);
+        out.blobCx[nb] = static_cast<float>(sumX) * inv;
+        out.blobCy[nb] = static_cast<float>(sumY) * inv;
+        out.blobMask[nb] = compMask;
+        nb++;
+      }
     }
   }
-
-  out.touchesTop = top;
-  out.touchesBottom = bottom;
-
-  if (out.hotCells == 0) {
-    missingFrames++;
-    if (missingFrames >= LOST_TRACK_RESET_FRAMES) {
-      sawTop = false;
-      sawBottom = false;
-      firstEdge = 0;
-      missingFrames = 0;
-    }
-    return out;
+  out.blobCount = nb;
+  for (uint8_t b = nb; b < kMaxScanBlobs; ++b) {
+    out.blobCx[b] = 0.0f;
+    out.blobCy[b] = 0.0f;
+    out.blobMask[b] = 0ULL;
   }
 
-  missingFrames = 0;
-  sawTop = sawTop || top;
-  sawBottom = sawBottom || bottom;
-
-  if (firstEdge == 0) {
-    if (top && !bottom) {
-      firstEdge = 1;
-    } else if (bottom && !top) {
-      firstEdge = -1;
+  for (uint8_t y = 0; y < 8; ++y) {
+    for (uint8_t x = 0; x < 8; ++x) {
+      if (isPeak[y][x]) {
+        const uint8_t bit = static_cast<uint8_t>((y << 3) | x);
+        out.peakMask |= (1ULL << bit);
+      }
     }
-  }
-
-  if (sawTop && sawBottom && firstEdge != 0) {
-    if (firstEdge > 0) {
-      out.entry = 1;
-    } else {
-      out.exit = 1;
-    }
-    sawTop = false;
-    sawBottom = false;
-    firstEdge = 0;
-    missingFrames = 0;
   }
 
   return out;

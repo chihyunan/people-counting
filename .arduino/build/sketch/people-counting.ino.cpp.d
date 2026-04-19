@@ -174,8 +174,9 @@
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/esp32-hal.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/esp32-hal-log.h \
  /Users/richardding/Library/Arduino15/packages/esp32/hardware/esp32/3.3.7/cores/esp32/HardwareI2C.h \
- /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid_helper.h \
+ /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/blob_motion.h \
  /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/scanner.h \
+ /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid_helper.h \
  /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/eyegrid/eyegrid_helper.h \
  /Users/richardding/Documents/GitHub/people-counting/.arduino/build/sketch/src/oled/oled_display.h \
  /Users/richardding/Documents/Arduino/libraries/U8g2/src/U8g2lib.h \

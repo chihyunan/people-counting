@@ -4,6 +4,7 @@
 
 #include <Adafruit_AMG88xx.h>
 #include <Wire.h>
+#include "blob_motion.h"
 #include "eyegrid_helper.h"
 #include "scanner.h"
 
@@ -13,10 +14,14 @@ static Adafruit_AMG88xx amg;
 static float pixels[64];
 
 struct FrameResult {
-  int entered;
-  int exited;
   uint8_t hotCells;
+  /** Raw 8-connected peak blobs this frame. */
   uint8_t blobCount;
+  /** Blobs still counted after motion filter (10s stationary excluded). */
+  uint8_t activeBlobCount;
+  float frameMaxC;
+  float peakFloorC;
+  uint64_t peakMask;
 };
 
 struct CalibrationResult {
@@ -25,14 +30,14 @@ struct CalibrationResult {
   uint16_t frames;
 };
 
-inline bool start(int sda = 36, int scl = 39) {
+inline bool start(int sda = 21, int scl = 22) {
   Wire.begin(sda, scl);
   return amg.begin(0x69);
 }
 
 inline CalibrationResult calibrateThreshold(unsigned long durationMs = 10000,
                                             unsigned long sampleIntervalMs = 100,
-                                            float thresholdMultiplier = 1.10f,
+                                            float thresholdMultiplier = 1.05f,
                                             bool printDebug = true) {
   if (sampleIntervalMs == 0) {
     sampleIntervalMs = 1;
@@ -75,28 +80,32 @@ inline CalibrationResult calibrateThreshold(unsigned long durationMs = 10000,
   return out;
 }
 
-inline FrameResult poll(float thresholdC, bool printDebug = true) {
+inline FrameResult poll(float thresholdC, float headBandC, float minProminenceC,
+                        bool printDebug = true) {
   amg.readPixels(pixels);
 
-  EyegridHelper::BinaryGrid8x8 mask = EyegridHelper::thresholdMask8x8(pixels, thresholdC);
-  Scanner::ScanResult scan = Scanner::scan(mask);
+  const float highBandMinC =
+      thresholdC * EyegridHelper::PRINT_TEMP_ABOVE_THRESHOLD_RATIO;
+  Scanner::ScanResult scan = Scanner::scan(pixels, thresholdC, headBandC, minProminenceC,
+                                           highBandMinC);
+
+  const BlobMotion::UpdateResult motion = BlobMotion::update(scan, millis());
 
   if (printDebug) {
     Serial.print(F("[eyegrid] hot="));
     Serial.print(scan.hotCells);
     Serial.print(F(" blobs="));
     Serial.print(scan.blobCount);
-    Serial.print(F(" top="));
-    Serial.print(scan.touchesTop ? 1 : 0);
-    Serial.print(F(" bottom="));
-    Serial.print(scan.touchesBottom ? 1 : 0);
-    Serial.print(F(" entry="));
-    Serial.print(scan.entry);
-    Serial.print(F(" exit="));
-    Serial.println(scan.exit);
+    Serial.print(F(" active="));
+    Serial.print(motion.activeBlobCount);
+    Serial.print(F(" frameMaxC="));
+    Serial.print(scan.frameMaxC, 2);
+    Serial.print(F(" peakFloorC="));
+    Serial.println(scan.peakFloorC, 2);
   }
 
-  FrameResult out = {scan.entry, scan.exit, scan.hotCells, scan.blobCount};
+  FrameResult out = {scan.hotCells, scan.blobCount, motion.activeBlobCount, scan.frameMaxC,
+                     scan.peakFloorC, scan.peakMask};
   return out;
 }
 
