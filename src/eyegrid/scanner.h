@@ -6,9 +6,13 @@
 
 namespace Scanner {
 
-struct CountTuple {
+struct ScanResult {
   int entry;
   int exit;
+  uint8_t hotCells;
+  uint8_t blobCount;
+  bool touchesTop;
+  bool touchesBottom;
 };
 
 static bool sawTop = false;
@@ -17,27 +21,71 @@ static int8_t firstEdge = 0; // 0 none, +1 top, -1 bottom
 static uint8_t missingFrames = 0;
 static const uint8_t LOST_TRACK_RESET_FRAMES = 3;
 
-inline CountTuple scan(const EyegridHelper::BinaryGrid8x8 &grid) {
-  CountTuple out = {0, 0};
-  bool anyHot = false;
+inline ScanResult scan(const EyegridHelper::BinaryGrid8x8 &grid) {
+  ScanResult out = {0, 0, 0, 0, false, false};
   bool top = false;
   bool bottom = false;
+
+  bool visited[8][8] = {};
+  const int8_t dirs[8][2] = {
+      {-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
+      {0, 1},   {1, -1}, {1, 0},  {1, 1},
+  };
+  int qx[64];
+  int qy[64];
 
   for (uint8_t y = 0; y < 8; ++y) {
     for (uint8_t x = 0; x < 8; ++x) {
       if (grid.cell[y][x] == 0) {
         continue;
       }
-      anyHot = true;
+
+      out.hotCells++;
       if (y == 0) {
         top = true;
       } else if (y == 7) {
         bottom = true;
       }
+
+      if (visited[y][x]) {
+        continue;
+      }
+
+      out.blobCount++;
+      int head = 0;
+      int tail = 0;
+      qx[tail] = x;
+      qy[tail] = y;
+      tail++;
+      visited[y][x] = true;
+
+      while (head < tail) {
+        int cx = qx[head];
+        int cy = qy[head];
+        head++;
+
+        for (uint8_t i = 0; i < 8; ++i) {
+          int nx = cx + dirs[i][0];
+          int ny = cy + dirs[i][1];
+          if (nx < 0 || nx >= 8 || ny < 0 || ny >= 8) {
+            continue;
+          }
+          if (visited[ny][nx] || grid.cell[ny][nx] == 0) {
+            continue;
+          }
+          visited[ny][nx] = true;
+          qx[tail] = nx;
+          qy[tail] = ny;
+          tail++;
+        }
+      }
     }
   }
 
-  if (!anyHot) {
+  out.touchesTop = top;
+  out.touchesBottom = bottom;
+
+  if (out.hotCells == 0) {
     missingFrames++;
     if (missingFrames >= LOST_TRACK_RESET_FRAMES) {
       sawTop = false;
