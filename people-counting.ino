@@ -33,14 +33,14 @@ void loop() {
   int event = getDirectionalCount();
   if (event != 0) {
     if (event == 1) {
-      occupancy++;
-      totalEntered++;
-      LOG.println(F(">>> ENTRY (+1)"));
-    } else {
       if (occupancy > 0)
         occupancy--;
       totalExited++;
       LOG.println(F("<<< EXIT (-1)"));
+    } else {
+      occupancy++;
+      totalEntered++;
+      LOG.println(F(">>> ENTRY (+1)"));
     }
     LOG.print(F("inRoom="));
     LOG.print(occupancy);
