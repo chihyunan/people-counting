@@ -1,24 +1,49 @@
-# ESP32 — people-counting (arduino-cli)
+FQBN      ?= esp32:esp32:esp32
+PORT      ?= /dev/cu.usbserial-0001
+BAUD      ?= 115200
+SKETCH    ?= .
+BUILD_DIR ?= .arduino/build
 
-FQBN  := esp32:esp32:esp32
-PORT  ?= /dev/cu.usbserial-0001
-BAUD  := 115200
+CLI = arduino-cli
 
-.PHONY: help compile flash monitor
+default: help
 
 help:
 	@echo "Targets:"
-	@echo "  make compile  — build only (no flash)"
-	@echo "  make flash    — compile + flash production sketch"
-	@echo "  make monitor  — serial monitor @ $(BAUD)"
+	@echo "  make compile            Build sketch only"
+	@echo "  make upload             Build and upload firmware"
+	@echo "  make flash              Alias for upload"
+	@echo "  make monitor            Serial monitor"
+	@echo "  make run                Upload then monitor"
+	@echo "  make clean              Remove local build artifacts"
 	@echo ""
-	@echo "Override port:  make flash PORT=/dev/cu.OTHER"
+	@echo "Overrides:"
+	@echo "  make upload PORT=/dev/cu.usbserial-0001"
+	@echo "  make compile FQBN=esp32:esp32:esp32"
+	@echo "  make monitor BAUD=115200"
 
 compile:
-	arduino-cli compile --fqbn $(FQBN) .
+	mkdir -p "$(BUILD_DIR)"
+	$(CLI) compile \
+		--fqbn $(FQBN) \
+		--build-path "$(BUILD_DIR)" \
+		$(SKETCH)
 
-flash:
-	arduino-cli compile --upload -p $(PORT) --fqbn $(FQBN) .
+upload: compile
+	$(CLI) upload \
+		-p $(PORT) \
+		--fqbn $(FQBN) \
+		--input-dir "$(BUILD_DIR)" \
+		$(SKETCH)
+
+flash: upload
 
 monitor:
-	arduino-cli monitor -p $(PORT) -c baudrate=$(BAUD)
+	$(CLI) monitor -p $(PORT) -c baudrate=$(BAUD)
+
+run: upload monitor
+
+clean:
+	rm -rf .arduino
+
+.PHONY: default help compile upload flash monitor run clean
