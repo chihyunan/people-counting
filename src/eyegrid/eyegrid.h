@@ -16,8 +16,10 @@ struct FrameResult {
   uint8_t hotCells;
   /** Raw 8-connected peak blobs this frame. */
   uint8_t blobCount;
-  /** Blobs still counted after motion filter (10s stationary excluded). */
+  /** Blobs still counted after motion filter (5s stationary excluded). */
   uint8_t activeBlobCount;
+  /** +1 = exit, -1 = entry, 0 = none. */
+  int8_t directionalEvent;
   float frameMaxC;
   float peakFloorC;
   uint64_t peakMask;
@@ -97,13 +99,16 @@ inline FrameResult poll(float thresholdC, float headBandC, float minProminenceC,
     Serial.print(scan.blobCount);
     Serial.print(F(" active="));
     Serial.print(motion.activeBlobCount);
+    Serial.print(F(" ev="));
+    Serial.print(motion.directionalEvent);
     Serial.print(F(" frameMaxC="));
     Serial.print(scan.frameMaxC, 2);
     Serial.print(F(" peakFloorC="));
     Serial.println(scan.peakFloorC, 2);
   }
 
-  FrameResult out = {scan.hotCells, scan.blobCount, motion.activeBlobCount, scan.frameMaxC,
+  FrameResult out = {scan.hotCells, scan.blobCount, motion.activeBlobCount, motion.directionalEvent,
+                     scan.frameMaxC,
                      scan.peakFloorC, scan.peakMask};
   return out;
 }

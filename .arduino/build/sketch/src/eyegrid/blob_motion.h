@@ -8,12 +8,36 @@
 
 namespace BlobMotion {
 
-static constexpr unsigned long STATIONARY_EXCLUDE_MS = 10000UL;
+static constexpr unsigned long STATIONARY_EXCLUDE_MS = 5000UL;
 /** Centroid shift (grid cells) above this counts as movement. */
 static constexpr float MOVE_THRESH_CELL = 0.35f;
+/** Debounced directional crossing emit gap. */
+static constexpr unsigned long DIRECTION_EVENT_GAP_MS = 700UL;
+/** Virtual doorway centerline (0..7 grid row space). */
+static constexpr float CROSS_LINE_Y = 3.5f;
+/** Hysteresis around centerline; inside band means "no side". */
+static constexpr float CROSS_BAND_Y = 0.6f;
+
+enum Side : uint8_t {
+  SIDE_UNKNOWN = 0,
+  SIDE_TOP = 1,
+  SIDE_BOTTOM = 2
+};
+
+inline Side classifySide(float cy) {
+  if (cy <= (CROSS_LINE_Y - CROSS_BAND_Y)) {
+    return SIDE_TOP;
+  }
+  if (cy >= (CROSS_LINE_Y + CROSS_BAND_Y)) {
+    return SIDE_BOTTOM;
+  }
+  return SIDE_UNKNOWN;
+}
 
 struct UpdateResult {
   uint8_t activeBlobCount;
+  /** +1 = exit, -1 = entry, 0 = no directional event this frame. */
+  int8_t directionalEvent;
 };
 
 struct Slot {
@@ -22,8 +46,10 @@ struct Slot {
   float cx;
   float cy;
   unsigned long lastMovedMs;
+  unsigned long lastDirectionEmitMs;
   uint32_t id;
   bool stationaryAnnounced;
+  Side lastSide;
 };
 
 static Slot slots[8];
@@ -95,8 +121,10 @@ inline UpdateResult update(const Scanner::ScanResult &scan, unsigned long nowMs)
         slots[j].cx = scan.blobCx[i];
         slots[j].cy = scan.blobCy[i];
         slots[j].lastMovedMs = nowMs;
+        slots[j].lastDirectionEmitMs = 0;
         slots[j].id = nextTrackId++;
         slots[j].stationaryAnnounced = false;
+        slots[j].lastSide = classifySide(slots[j].cy);
         slotPaired[j] = true;
         break;
       }
@@ -117,6 +145,20 @@ inline UpdateResult update(const Scanner::ScanResult &scan, unsigned long nowMs)
       s.mask = scan.blobMask[i];
       s.cx = scan.blobCx[i];
       s.cy = scan.blobCy[i];
+
+      const Side sideNow = classifySide(s.cy);
+      const bool recentlyMoving = (nowMs - s.lastMovedMs) < STATIONARY_EXCLUDE_MS;
+      const bool emitCooldownOk =
+          (s.lastDirectionEmitMs == 0) || ((nowMs - s.lastDirectionEmitMs) >= DIRECTION_EVENT_GAP_MS);
+      if (sideNow != SIDE_UNKNOWN && s.lastSide != SIDE_UNKNOWN && sideNow != s.lastSide &&
+          recentlyMoving && emitCooldownOk && out.directionalEvent == 0) {
+        // Match prior branch semantics: +1 exit, -1 entry.
+        out.directionalEvent = (s.lastSide == SIDE_TOP && sideNow == SIDE_BOTTOM) ? 1 : -1;
+        s.lastDirectionEmitMs = nowMs;
+      }
+      if (sideNow != SIDE_UNKNOWN) {
+        s.lastSide = sideNow;
+      }
       slotPaired[static_cast<uint8_t>(bestJ)] = true;
     }
   }

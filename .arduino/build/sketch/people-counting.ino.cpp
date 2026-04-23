@@ -13,12 +13,15 @@ static const unsigned long TEMP_PRINT_INTERVAL_MS = 3000;
 static unsigned long lastTempPrintAt = 0;
 static const int I2C_SDA_PIN = 21;
 static const int I2C_SCL_PIN = 22;
+static int occupancy = 0;
+static unsigned long totalEntered = 0;
+static unsigned long totalExited = 0;
 
-#line 15 "/Users/richardding/Documents/GitHub/people-counting/people-counting.ino"
+#line 18 "/Users/richardding/Documents/GitHub/people-counting/people-counting.ino"
 void setup();
-#line 26 "/Users/richardding/Documents/GitHub/people-counting/people-counting.ino"
+#line 29 "/Users/richardding/Documents/GitHub/people-counting/people-counting.ino"
 void loop();
-#line 15 "/Users/richardding/Documents/GitHub/people-counting/people-counting.ino"
+#line 18 "/Users/richardding/Documents/GitHub/people-counting/people-counting.ino"
 void setup() {
   Serial.begin(115200);
   Oled::begin(I2C_SDA_PIN, I2C_SCL_PIN);
@@ -34,6 +37,20 @@ void loop() {
   Eyegrid::FrameResult frame =
       Eyegrid::poll(heatThresholdC, HEAD_BAND_C, MIN_PEAK_PROMINENCE_C, false);
 
+  if (frame.directionalEvent != 0) {
+    if (frame.directionalEvent == 1) {
+      if (occupancy > 0) {
+        occupancy--;
+      }
+      totalExited++;
+      Serial.println(F("<<< EXIT (event=+1)"));
+    } else {
+      occupancy++;
+      totalEntered++;
+      Serial.println(F(">>> ENTRY (event=-1)"));
+    }
+  }
+
   unsigned long now = millis();
   if (now - lastTempPrintAt >= TEMP_PRINT_INTERVAL_MS) {
     const float printMinC =
@@ -45,6 +62,14 @@ void loop() {
       Serial.print(frame.blobCount);
       Serial.print(F(" active="));
       Serial.print(frame.activeBlobCount);
+      Serial.print(F(" ev="));
+      Serial.print(frame.directionalEvent);
+      Serial.print(F(" inRoom="));
+      Serial.print(occupancy);
+      Serial.print(F(" entered="));
+      Serial.print(totalEntered);
+      Serial.print(F(" exited="));
+      Serial.print(totalExited);
       Serial.print(F(" frameMaxC="));
       Serial.print(frame.frameMaxC, 2);
       Serial.print(F(" peakFloorC="));
