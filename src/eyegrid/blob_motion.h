@@ -35,8 +35,8 @@ inline Side classifySide(float cy) {
 
 struct UpdateResult {
   uint8_t activeBlobCount;
-  /** +1 = exit, -1 = entry, 0 = no directional event this frame. */
-  int8_t directionalEvent;
+  uint8_t entriesThisFrame;
+  uint8_t exitsThisFrame;
 };
 
 struct Slot {
@@ -150,9 +150,12 @@ inline UpdateResult update(const Scanner::ScanResult &scan, unsigned long nowMs)
       const bool emitCooldownOk =
           (s.lastDirectionEmitMs == 0) || ((nowMs - s.lastDirectionEmitMs) >= DIRECTION_EVENT_GAP_MS);
       if (sideNow != SIDE_UNKNOWN && s.lastSide != SIDE_UNKNOWN && sideNow != s.lastSide &&
-          recentlyMoving && emitCooldownOk && out.directionalEvent == 0) {
-        // Match prior branch semantics: +1 exit, -1 entry.
-        out.directionalEvent = (s.lastSide == SIDE_TOP && sideNow == SIDE_BOTTOM) ? 1 : -1;
+          recentlyMoving && emitCooldownOk) {
+        if (s.lastSide == SIDE_TOP && sideNow == SIDE_BOTTOM) {
+          out.exitsThisFrame++;
+        } else {
+          out.entriesThisFrame++;
+        }
         s.lastDirectionEmitMs = nowMs;
       }
       if (sideNow != SIDE_UNKNOWN) {

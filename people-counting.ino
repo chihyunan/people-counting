@@ -30,18 +30,15 @@ void loop() {
   Eyegrid::FrameResult frame =
       Eyegrid::poll(heatThresholdC, HEAD_BAND_C, MIN_PEAK_PROMINENCE_C, false);
 
-  if (frame.directionalEvent != 0) {
-    if (frame.directionalEvent == 1) {
-      if (occupancy > 0) {
-        occupancy--;
-      }
-      totalExited++;
-      Serial.println(F("<<< EXIT (event=+1)"));
-    } else {
-      occupancy++;
-      totalEntered++;
-      Serial.println(F(">>> ENTRY (event=-1)"));
-    }
+  for (uint8_t i = 0; i < frame.exitsThisFrame; i++) {
+    if (occupancy > 0) occupancy--;
+    totalExited++;
+    Serial.println(F("<<< EXIT"));
+  }
+  for (uint8_t i = 0; i < frame.entriesThisFrame; i++) {
+    occupancy++;
+    totalEntered++;
+    Serial.println(F(">>> ENTRY"));
   }
 
   unsigned long now = millis();
@@ -55,8 +52,10 @@ void loop() {
       Serial.print(frame.blobCount);
       Serial.print(F(" active="));
       Serial.print(frame.activeBlobCount);
-      Serial.print(F(" ev="));
-      Serial.print(frame.directionalEvent);
+      Serial.print(F(" entries="));
+      Serial.print(frame.entriesThisFrame);
+      Serial.print(F(" exits="));
+      Serial.print(frame.exitsThisFrame);
       Serial.print(F(" inRoom="));
       Serial.print(occupancy);
       Serial.print(F(" entered="));

@@ -19,8 +19,8 @@ struct FrameResult {
   uint8_t blobCount;
   /** Blobs still counted after motion filter (5s stationary excluded). */
   uint8_t activeBlobCount;
-  /** +1 = exit, -1 = entry, 0 = none. */
-  int8_t directionalEvent;
+  uint8_t entriesThisFrame;
+  uint8_t exitsThisFrame;
   float frameMaxC;
   float peakFloorC;
   uint64_t peakMask;
@@ -100,17 +100,19 @@ inline FrameResult poll(float thresholdC, float headBandC, float minProminenceC,
     Serial.print(scan.blobCount);
     Serial.print(F(" active="));
     Serial.print(motion.activeBlobCount);
-    Serial.print(F(" ev="));
-    Serial.print(motion.directionalEvent);
+    Serial.print(F(" entries="));
+    Serial.print(motion.entriesThisFrame);
+    Serial.print(F(" exits="));
+    Serial.print(motion.exitsThisFrame);
     Serial.print(F(" frameMaxC="));
     Serial.print(scan.frameMaxC, 2);
     Serial.print(F(" peakFloorC="));
     Serial.println(scan.peakFloorC, 2);
   }
 
-  FrameResult out = {scan.hotCells, scan.blobCount, motion.activeBlobCount, motion.directionalEvent,
-                     scan.frameMaxC,
-                     scan.peakFloorC, scan.peakMask};
+  FrameResult out = {scan.hotCells, scan.blobCount, motion.activeBlobCount,
+                     motion.entriesThisFrame, motion.exitsThisFrame,
+                     scan.frameMaxC, scan.peakFloorC, scan.peakMask};
   return out;
 }
 
