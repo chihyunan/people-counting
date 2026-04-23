@@ -1,7 +1,5 @@
-#include "src/eyegrid/eyegrid.h"
-#include "src/eyegrid/eyegrid_helper.h"
-#include "src/oled/oled_display.h"
-
+#include "src/grideye/grideye.h"
+#include "src/grideye/grideye_helper.h"
 static float heatThresholdC = 28.0f;
 /** Only pixels within this many °C of frame max can be peak seeds (head band). */
 static constexpr float HEAD_BAND_C = 1.6f;
@@ -17,18 +15,16 @@ static unsigned long totalExited = 0;
 
 void setup() {
   Serial.begin(115200);
-  Oled::begin(I2C_SDA_PIN, I2C_SCL_PIN);
-  Oled::showBlobCount(0);
-  if (!Eyegrid::start(I2C_SDA_PIN, I2C_SCL_PIN)) {
+  if (!Grideye::start(I2C_SDA_PIN, I2C_SCL_PIN)) {
     for (;;) delay(1000);
   }
-  Eyegrid::CalibrationResult calibration = Eyegrid::calibrateThreshold(10000, 100, 1.05f, false);
+  Grideye::CalibrationResult calibration = Grideye::calibrateThreshold(10000, 100, 1.05f, false);
   heatThresholdC = calibration.thresholdC;
 }
 
 void loop() {
-  Eyegrid::FrameResult frame =
-      Eyegrid::poll(heatThresholdC, HEAD_BAND_C, MIN_PEAK_PROMINENCE_C, false);
+  Grideye::FrameResult frame =
+      Grideye::poll(heatThresholdC, HEAD_BAND_C, MIN_PEAK_PROMINENCE_C, false);
 
   for (uint8_t i = 0; i < frame.exitsThisFrame; i++) {
     if (occupancy > 0) occupancy--;
@@ -44,9 +40,9 @@ void loop() {
   unsigned long now = millis();
   if (now - lastTempPrintAt >= TEMP_PRINT_INTERVAL_MS) {
     const float printMinC =
-        heatThresholdC * EyegridHelper::PRINT_TEMP_ABOVE_THRESHOLD_RATIO;
-    if (EyegridHelper::anyCellAtLeast(Eyegrid::pixels, printMinC)) {
-      Serial.print(F("[eyegrid] hot="));
+        heatThresholdC * GrideyeHelper::PRINT_TEMP_ABOVE_THRESHOLD_RATIO;
+    if (GrideyeHelper::anyCellAtLeast(Grideye::pixels, printMinC)) {
+      Serial.print(F("[grideye] hot="));
       Serial.print(frame.hotCells);
       Serial.print(F(" blobs="));
       Serial.print(frame.blobCount);
@@ -66,12 +62,11 @@ void loop() {
       Serial.print(frame.frameMaxC, 2);
       Serial.print(F(" peakFloorC="));
       Serial.println(frame.peakFloorC, 2);
-      EyegridHelper::printTemperatureGrid8x8(Eyegrid::pixels, Serial, 1, now,
+      GrideyeHelper::printTemperatureGrid8x8(Grideye::pixels, Serial, 1, now,
                                                printMinC, frame.peakMask);
     }
     lastTempPrintAt = now;
   }
 
-  Oled::showBlobCount(frame.activeBlobCount);
   delay(200);
 }

@@ -1,5 +1,5 @@
-#ifndef EYEGRID_SCANNER_H
-#define EYEGRID_SCANNER_H
+#ifndef GRIDEYE_SCANNER_H
+#define GRIDEYE_SCANNER_H
 
 #include <stdint.h>
 

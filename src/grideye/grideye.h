@@ -1,13 +1,13 @@
-#ifndef EYEGRID_H
-#define EYEGRID_H
+#ifndef GRIDEYE_H
+#define GRIDEYE_H
 
 #include <Adafruit_AMG88xx.h>
 #include <Wire.h>
 #include "blob_motion.h"
-#include "eyegrid_helper.h"
+#include "grideye_helper.h"
 #include "scanner.h"
 
-namespace Eyegrid {
+namespace Grideye {
 
 static Adafruit_AMG88xx amg;
 static float pixels[64];
@@ -69,7 +69,7 @@ inline CalibrationResult calibrateThreshold(unsigned long durationMs = 10000,
   float thresholdC = averageC * thresholdMultiplier;
 
   if (printDebug) {
-    Serial.print(F("[eyegrid] calibration avgC="));
+    Serial.print(F("[grideye] calibration avgC="));
     Serial.print(averageC, 2);
     Serial.print(F(" thresholdC="));
     Serial.print(thresholdC, 2);
@@ -86,14 +86,14 @@ inline FrameResult poll(float thresholdC, float headBandC, float minProminenceC,
   amg.readPixels(pixels);
 
   const float highBandMinC =
-      thresholdC * EyegridHelper::PRINT_TEMP_ABOVE_THRESHOLD_RATIO;
+      thresholdC * GrideyeHelper::PRINT_TEMP_ABOVE_THRESHOLD_RATIO;
   Scanner::ScanResult scan = Scanner::scan(pixels, thresholdC, headBandC, minProminenceC,
                                            highBandMinC);
 
   const BlobMotion::UpdateResult motion = BlobMotion::update(scan, millis());
 
   if (printDebug) {
-    Serial.print(F("[eyegrid] hot="));
+    Serial.print(F("[grideye] hot="));
     Serial.print(scan.hotCells);
     Serial.print(F(" blobs="));
     Serial.print(scan.blobCount);
@@ -115,6 +115,6 @@ inline FrameResult poll(float thresholdC, float headBandC, float minProminenceC,
   return out;
 }
 
-} // namespace Eyegrid
+} // namespace Grideye
 
 #endif

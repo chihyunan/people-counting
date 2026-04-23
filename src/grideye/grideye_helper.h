@@ -1,11 +1,11 @@
-#ifndef EYEGRID_HELPER_H
-#define EYEGRID_HELPER_H
+#ifndef GRIDEYE_HELPER_H
+#define GRIDEYE_HELPER_H
 
 #include <Arduino.h>
 #include <stdint.h>
 #include <stdio.h>
 
-namespace EyegridHelper {
+namespace GrideyeHelper {
 
 /** Multiplier applied to scanner threshold; gate + print use cells >= threshold * this (+5%). */
 static const float PRINT_TEMP_ABOVE_THRESHOLD_RATIO = 1.05f;
@@ -24,7 +24,6 @@ inline void printTemperatureGrid8x8(const float pixels[64], Stream &out = Serial
                                     unsigned long sampleMs = 0,
                                     float printMinC = 0.0f,
                                     uint64_t peakMask = 0ULL) {
-  // Wider columns: numbers, or "* 23.4" for peaks (star + space + °C).
   const int cellW = 5 + static_cast<int>(decimals) + 1 + 4;
   char buf[24];
   char inner[20];
@@ -69,6 +68,6 @@ inline void printTemperatureGrid8x8(const float pixels[64], Stream &out = Serial
   out.println(F("====================================="));
 }
 
-} // namespace EyegridHelper
+} // namespace GrideyeHelper
 
 #endif

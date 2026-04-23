@@ -1,5 +1,5 @@
-#ifndef EYEGRID_BLOB_MOTION_H
-#define EYEGRID_BLOB_MOTION_H
+#ifndef GRIDEYE_BLOB_MOTION_H
+#define GRIDEYE_BLOB_MOTION_H
 
 #include <Arduino.h>
 #include <stdint.h>
